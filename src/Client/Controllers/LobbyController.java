@@ -86,6 +86,8 @@ public final class LobbyController extends DataOrientedController<LobbyModel, Lo
      **/
     private void initializeCategoryView()
     {
+        this.dispose();
+
         var timeToAnswer = client.retrieveTimeToAnswerInSeconds(
             this.model.getRounds(),
             this.model.getCategoriesPerRound(),
@@ -95,8 +97,6 @@ public final class LobbyController extends DataOrientedController<LobbyModel, Lo
 
         // TODO: GET CATEGORIES FROM THE SERVER
         var categories = new ArrayList<String>();
-
-        this.dispose();
 
         var categoryModel = new CategoryModel();
         var categoryView = new CategoryView(categories);

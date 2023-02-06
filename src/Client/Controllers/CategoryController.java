@@ -2,9 +2,12 @@ package Client.Controllers;
 
 import Client.Abstractions.Controllers.TimeOrientedController;
 import Client.Models.CategoryModel;
+import Client.Models.QuestionModel;
 import Client.Views.Category.CategoryView;
+import Client.Views.Question.QuestionView;
 
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  ** Represents the mechanism which controls user interactions with the view
@@ -74,7 +77,16 @@ public final class CategoryController extends TimeOrientedController<CategoryMod
      **/
     private void initializeQuestionView()
     {
-        System.out.println("Moving to question!");
+        this.dispose();
+
+        var question = "";
+        var answers = new ArrayList<String>();
+
+        var questionModel = new QuestionModel();
+        var questionView = new QuestionView(question, answers);
+        var questionController = new QuestionController(this.timeToAnswerQuestion, questionModel, questionView);
+
+        questionController.initialize();
     }
 
     /**
