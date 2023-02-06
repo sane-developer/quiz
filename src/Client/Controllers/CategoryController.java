@@ -43,7 +43,6 @@ public final class CategoryController extends TimeOrientedController<CategoryMod
     protected void initializeEventListeners()
     {
         setupViewLifetimeTracker(e -> initializeQuestionView());
-
         setupRemainingTimeUpdater();
 
         var buttons = this.view.ui.categoryButtons;

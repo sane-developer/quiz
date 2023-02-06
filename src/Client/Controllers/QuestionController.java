@@ -65,6 +65,13 @@ public final class QuestionController extends TimeOrientedController<QuestionMod
      **/
     private void initializeLeaderboardView()
     {
+        var selectedAnswer = this.model.getSelectedAnswer();
+
+        if (selectedAnswer != null)
+        {
+            client.sendRequestToServer(selectedAnswer);
+        }
+
         var playerScoresDetails = client.getPlayerScoresDetails();
 
         var playerNames = playerScoresDetails.get(0);
