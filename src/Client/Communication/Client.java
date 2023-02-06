@@ -2,6 +2,7 @@ package Client.Communication;
 
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  ** Represents the client socket which is responsible for communication
@@ -124,6 +126,43 @@ public final class Client
     public List<String> retrievePlayerNamesResponse()
     {
         return retrieveStringArray();
+    }
+
+    /**
+     ** Retrieves the new coming players names continuously until the game starts
+     ** @param list The self-change aware list model
+     ** @return The new coming player name or time to answer
+     **/
+    public String retrievePlayerNameUntilStartGameResponseIsGiven(DefaultListModel<String> list)
+    {
+        var digitOnlyPattern = Pattern.compile("\\d+");
+
+        try
+        {
+            var response = this.in.readLine();
+
+            while (response == null || !digitOnlyPattern.matcher(response).matches())
+            {
+                response = this.in.readLine();
+
+                System.out.println(response);
+
+                if (response.contains("NEW"))
+                {
+                    var playerName = response.split(" ")[1];
+
+                    System.out.println(playerName);
+
+                    list.addElement(playerName);
+                }
+            }
+
+            return response;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

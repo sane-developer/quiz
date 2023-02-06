@@ -110,7 +110,19 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     {
         var playerName = this.model.getPlayerName();
 
+        if (playerName.equals(""))
+        {
+            this.view.ui.playerNameEntry.setText("Cannot be empty");
+            return;
+        }
+
         var lobbyName = this.model.getLobbyName();
+
+        if (lobbyName.equals(""))
+        {
+            this.view.ui.lobbyNameEntry.setText("Cannot be empty");
+            return;
+        }
 
         var response = client.retrieveLobbyInitResponse("JOIN", playerName, lobbyName);
 
@@ -140,7 +152,19 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     {
         var playerName = this.model.getPlayerName();
 
+        if (playerName.equals(""))
+        {
+            this.view.ui.playerNameEntry.setText("Cannot be empty");
+            return;
+        }
+
         var lobbyName = this.model.getLobbyName();
+
+        if (lobbyName.equals(""))
+        {
+            this.view.ui.lobbyNameEntry.setText("Cannot be empty");
+            return;
+        }
 
         var response = client.retrieveLobbyInitResponse("CREATE", playerName, lobbyName);
 

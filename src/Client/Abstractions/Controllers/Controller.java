@@ -47,6 +47,11 @@ public abstract class Controller<TModel, TView extends View>
     protected abstract void disposeEventListeners();
 
     /**
+     ** Dispatches the task in the background
+     **/
+    protected void dispatchBackgroundTask() {}
+
+    /**
      ** Initializes the view
      **/
     public void initialize()
@@ -54,6 +59,8 @@ public abstract class Controller<TModel, TView extends View>
         this.view.display();
 
         initializeEventListeners();
+
+        dispatchBackgroundTask();
     }
 
     /**

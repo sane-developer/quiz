@@ -11,7 +11,6 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.ArrayList;
 
 /**
  ** Represents the mechanism which controls user interactions with the view
@@ -82,27 +81,42 @@ public final class LobbyController extends DataOrientedController<LobbyModel, Lo
     }
 
     /**
+     ** Continuously updates the player name list and initializes the category view if necessary
+     **/
+    @Override
+    protected void dispatchBackgroundTask()
+    {
+        var worker = new Thread(() ->
+        {
+            var timeToAnswerString = client.retrievePlayerNameUntilStartGameResponseIsGiven(view.playerNamesList);
+            var timeToAnswer = Integer.parseInt(timeToAnswerString);
+            var categories = client.retrieveCategoriesResponse();
+
+            dispose();
+
+            var categoryModel = new CategoryModel();
+            var categoryView = new CategoryView(categories);
+            var categoryController = new CategoryController(timeToAnswer, categoryModel, categoryView);
+
+            categoryController.initialize();
+        });
+
+        worker.start();
+    }
+
+    /**
      ** Initializes the category view
      **/
     private void initializeCategoryView()
     {
         this.dispose();
 
-        var timeToAnswer = client.retrieveTimeToAnswerInSeconds(
+        client.retrieveTimeToAnswerInSeconds(
             this.model.getRounds(),
             this.model.getCategoriesPerRound(),
             this.model.getQuestionsPerCategory(),
             this.model.getTimeForAnswerInSeconds()
         );
-
-        // TODO: GET CATEGORIES FROM THE SERVER
-        var categories = new ArrayList<String>();
-
-        var categoryModel = new CategoryModel();
-        var categoryView = new CategoryView(categories);
-        var categoryController = new CategoryController(timeToAnswer, categoryModel, categoryView);
-
-        categoryController.initialize();
     }
 
     /**
