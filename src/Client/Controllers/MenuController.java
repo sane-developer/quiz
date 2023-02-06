@@ -83,7 +83,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     {
         this.dispose();
 
-        var playerNames = this.client.retrievePlayerNamesResponse();
+        var playerNames = client.retrievePlayerNamesResponse();
         var lobbyName = this.model.getLobbyName();
 
         var lobbyModel = new LobbyModel();
@@ -112,7 +112,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
 
         var lobbyName = this.model.getLobbyName();
 
-        var response = this.client.retrieveLobbyInitResponse("JOIN", playerName, lobbyName);
+        var response = client.retrieveLobbyInitResponse("JOIN", playerName, lobbyName);
 
         if (response == MenuResponseFlags.LOBBY_NOT_FOUND)
         {
@@ -142,7 +142,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
 
         var lobbyName = this.model.getLobbyName();
 
-        var response = this.client.retrieveLobbyInitResponse("CREATE", playerName, lobbyName);
+        var response = client.retrieveLobbyInitResponse("CREATE", playerName, lobbyName);
 
         if (response == MenuResponseFlags.LOBBY_COULD_NOT_BE_CREATED)
         {

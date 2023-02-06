@@ -2,13 +2,16 @@ package Client.Controllers;
 
 import Client.Abstractions.Controllers.DataOrientedController;
 import Client.Filters.DigitOnlyFilter;
+import Client.Models.CategoryModel;
 import Client.Models.LobbyModel;
+import Client.Views.Category.CategoryView;
 import Client.Views.Lobby.LobbyView;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.ArrayList;
 
 /**
  ** Represents the mechanism which controls user interactions with the view
@@ -83,7 +86,23 @@ public final class LobbyController extends DataOrientedController<LobbyModel, Lo
      **/
     private void initializeCategoryView()
     {
-        System.out.println("Moving to category!");
+        var timeToAnswer = client.retrieveTimeToAnswerInSeconds(
+            this.model.getRounds(),
+            this.model.getCategoriesPerRound(),
+            this.model.getQuestionsPerCategory(),
+            this.model.getTimeForAnswerInSeconds()
+        );
+
+        // TODO: GET CATEGORIES FROM THE SERVER
+        var categories = new ArrayList<String>();
+
+        this.dispose();
+
+        var categoryModel = new CategoryModel();
+        var categoryView = new CategoryView(categories);
+        var categoryController = new CategoryController(timeToAnswer, categoryModel, categoryView);
+
+        categoryController.initialize();
     }
 
     /**

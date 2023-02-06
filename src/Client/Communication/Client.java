@@ -80,12 +80,12 @@ public final class Client
     }
 
     /**
-     ** Retrieves the names of the players in the lobby
-     ** @return The list of player names
+     ** Retrieves the list of strings from the server
+     ** @return The list of strings
      **/
-    public List<String> retrievePlayerNamesResponse()
+    private List<String> retrieveStringArray()
     {
-        var users = new ArrayList<String>();
+        var data = new ArrayList<String>();
 
         try
         {
@@ -104,9 +104,9 @@ public final class Client
             {
                 var id = iterator.next();
 
-                var name = json.getString(id);
+                var string = json.getString(id);
 
-                users.add(name);
+                data.add(string);
             }
         }
         catch (IOException e)
@@ -114,6 +114,64 @@ public final class Client
             throw new RuntimeException(e);
         }
 
-        return users;
+        return data;
+    }
+
+    /**
+     ** Retrieves the names of the players in the lobby
+     ** @return The list of player names
+     **/
+    public List<String> retrievePlayerNamesResponse()
+    {
+        return retrieveStringArray();
+    }
+
+    /**
+     ** Retrieves the time to answer the question specified in seconds
+     ** @param rounds The amount of rounds in the game
+     ** @param categories The amount of categories per round
+     ** @param questions The amount of questions per questions
+     ** @param time The amount of time to answer
+     ** @return The time to answer in seconds
+     **/
+    public int retrieveTimeToAnswerInSeconds(int rounds, int categories, int questions, int time)
+    {
+        var json = new JSONObject();
+
+        json.put("number_of_rounds", rounds);
+        json.put("categories_per_round", categories);
+        json.put("questions_per_category", questions);
+        json.put("time_for_answer", time);
+
+        var formattedJsonString = json.toString();
+
+        try
+        {
+            this.out.writeBytes(formattedJsonString + "\n");
+
+            this.out.flush();
+
+            var response = this.in.readLine();
+
+            while (response == null)
+            {
+                response = this.in.readLine();
+            }
+
+            return Integer.parseInt(response);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     ** Retrieves the set of categories for next round
+     ** @return The set of category names
+     **/
+    public List<String> retrieveCategoriesResponse()
+    {
+        return retrieveStringArray();
     }
 }

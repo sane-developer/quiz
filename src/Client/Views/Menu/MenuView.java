@@ -10,7 +10,7 @@ import java.awt.*;
 public final class MenuView extends View
 {
     /**
-     ** The user interface provider
+     ** The menu settings user interface components
      **/
     public final MenuViewUI ui = new MenuViewUI();
 

@@ -23,7 +23,7 @@ public abstract class Controller<TModel, TView extends View>
     /**
      ** The client socket
      **/
-    protected final Client client;
+    protected static final Client client = new Client("localhost", 8080);
 
     /**
      ** Creates an instance of Controller class with specified data and user interface providers
@@ -34,7 +34,6 @@ public abstract class Controller<TModel, TView extends View>
     {
         this.view = view;
         this.model = model;
-        this.client = new Client("localhost", 8080);
     }
 
     /**

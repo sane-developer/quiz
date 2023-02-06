@@ -3,7 +3,7 @@ package Client.Views.Menu;
 import javax.swing.*;
 
 /**
- ** Provides all the necessary user interface components
+ ** Provides all the necessary user interface components for the Menu view
  **/
 public final class MenuViewUI
 {
