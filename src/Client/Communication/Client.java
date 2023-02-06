@@ -1,10 +1,14 @@
 package Client.Communication;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  ** Represents the client socket which is responsible for communication
@@ -73,5 +77,43 @@ public final class Client
         {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     ** Retrieves the names of the players in the lobby
+     ** @return The list of player names
+     **/
+    public List<String> retrievePlayerNamesResponse()
+    {
+        var users = new ArrayList<String>();
+
+        try
+        {
+            var response = this.in.readLine();
+
+            while (response == null)
+            {
+                response = this.in.readLine();
+            }
+
+            var json = new JSONObject(response);
+
+            var iterator = json.keys();
+
+            while (iterator.hasNext())
+            {
+                var id = iterator.next();
+
+                var name = json.getString(id);
+
+                users.add(name);
+            }
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return users;
     }
 }

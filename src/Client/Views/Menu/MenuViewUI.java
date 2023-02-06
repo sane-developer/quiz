@@ -5,7 +5,7 @@ import javax.swing.*;
 /**
  ** Provides all the necessary user interface components
  **/
-public final class MenuViewInterface
+public final class MenuViewUI
 {
     /**
      ** Defines the maximum length of text fields input
@@ -43,13 +43,13 @@ public final class MenuViewInterface
     public final JButton createLobbyButton = new JButton("Create lobby");
 
     /**
-     ** Creates an instance of MenuViewInterface class and sets the elements positioning
+     ** Creates an instance of MenuViewUI class and sets the elements positioning
      **/
-    public MenuViewInterface()
+    public MenuViewUI()
     {
-        lobbyNameLabel.setHorizontalAlignment(JLabel.CENTER);
-        playerNameLabel.setHorizontalAlignment(JLabel.CENTER);
-        lobbyNameEntry.setHorizontalAlignment(JTextField.CENTER);
-        playerNameEntry.setHorizontalAlignment(JTextField.CENTER);
+        this.lobbyNameLabel.setHorizontalAlignment(JLabel.CENTER);
+        this.playerNameLabel.setHorizontalAlignment(JLabel.CENTER);
+        this.lobbyNameEntry.setHorizontalAlignment(JTextField.CENTER);
+        this.playerNameEntry.setHorizontalAlignment(JTextField.CENTER);
     }
 }

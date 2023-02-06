@@ -3,7 +3,9 @@ package Client.Controllers;
 import Client.Abstractions.Controllers.DataOrientedController;
 import Client.Filters.TextLengthFilter;
 import Client.Flags.MenuResponseFlags;
+import Client.Models.LobbyModel;
 import Client.Models.MenuModel;
+import Client.Views.Lobby.LobbyView;
 import Client.Views.Menu.MenuView;
 
 import javax.swing.*;
@@ -21,11 +23,11 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     /**
      ** Creates an instance of MenuController class with specified data and user interface providers
      ** @param menuModel The data provider
-     ** @param menuViewFrame The user interface provider
+     ** @param menuView The user interface provider
      **/
-    public MenuController(MenuModel menuModel, MenuView menuViewFrame)
+    public MenuController(MenuModel menuModel, MenuView menuView)
     {
-        super(menuModel, menuViewFrame);
+        super(menuModel, menuView);
     }
 
     /**
@@ -77,9 +79,18 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     /**
      ** Initializes the lobby view
      **/
-    private void initializeLobbyView()
+    private void initializeLobbyView(boolean isGuest)
     {
-        System.out.println("Moving to lobby!");
+        this.dispose();
+
+        var playerNames = this.client.retrievePlayerNamesResponse();
+        var lobbyName = this.model.getLobbyName();
+
+        var lobbyModel = new LobbyModel();
+        var lobbyView = new LobbyView(lobbyName, playerNames, isGuest);
+        var lobbyController = new LobbyController(lobbyModel, lobbyView);
+
+        lobbyController.initialize();
     }
 
     /**
@@ -98,6 +109,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     private final ActionListener joinLobby = e ->
     {
         var playerName = this.model.getPlayerName();
+
         var lobbyName = this.model.getLobbyName();
 
         var response = this.client.retrieveLobbyInitResponse("JOIN", playerName, lobbyName);
@@ -116,8 +128,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
         }
         else if (response == MenuResponseFlags.OPERATION_DONE)
         {
-            this.model.setIsGuest(true);
-            this.initializeLobbyView();
+            this.initializeLobbyView(true);
         }
     };
 
@@ -128,6 +139,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     private final ActionListener createLobby = e ->
     {
         var playerName = this.model.getPlayerName();
+
         var lobbyName = this.model.getLobbyName();
 
         var response = this.client.retrieveLobbyInitResponse("CREATE", playerName, lobbyName);
@@ -143,8 +155,7 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
         }
         else if (response == MenuResponseFlags.OPERATION_DONE)
         {
-            this.model.setIsGuest(false);
-            this.initializeLobbyView();
+            this.initializeLobbyView(false);
         }
     };
 

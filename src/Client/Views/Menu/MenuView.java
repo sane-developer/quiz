@@ -12,7 +12,7 @@ public final class MenuView extends View
     /**
      ** The user interface provider
      **/
-    public final MenuViewInterface ui = new MenuViewInterface();
+    public final MenuViewUI ui = new MenuViewUI();
 
     /**
      ** Creates an instance of MenuViewFrame class with specified frame properties
