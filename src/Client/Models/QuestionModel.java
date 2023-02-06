@@ -8,7 +8,7 @@ public final class QuestionModel
     /**
      ** The selected answer by the player
      **/
-    private String selectedAnswer;
+    private String selectedAnswer = null;
 
 
     /**
