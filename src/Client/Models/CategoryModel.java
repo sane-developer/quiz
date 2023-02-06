@@ -8,7 +8,7 @@ public final class CategoryModel
     /**
      ** The category which has been chosen
      **/
-    private String selectedCategory;
+    private String selectedCategory = null;
 
     /**
      ** Gets the selected category

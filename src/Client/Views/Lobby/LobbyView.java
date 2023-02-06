@@ -144,7 +144,9 @@ public final class LobbyView extends View
     {
         var card = new JPanel();
 
-        var layout = new GridLayout(4, 1);
+        var rows = this.isGuest ? 2 : 4;
+
+        var layout = new GridLayout(rows, 1);
 
         card.setLayout(layout);
 

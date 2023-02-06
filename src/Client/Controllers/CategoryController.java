@@ -7,7 +7,6 @@ import Client.Views.Category.CategoryView;
 import Client.Views.Question.QuestionView;
 
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  ** Represents the mechanism which controls user interactions with the view
@@ -77,13 +76,22 @@ public final class CategoryController extends TimeOrientedController<CategoryMod
      **/
     private void initializeQuestionView()
     {
+        var selectedCategory = this.model.getSelectedCategory();
+
+        if (selectedCategory != null)
+        {
+            client.sendRequestToServer(selectedCategory);
+        }
+
+        var questionDetails = client.getQuestionDetails();
+        var question = questionDetails.get(0);
+
+        questionDetails.remove(0);
+
         this.dispose();
 
-        var question = "";
-        var answers = new ArrayList<String>();
-
         var questionModel = new QuestionModel();
-        var questionView = new QuestionView(question, answers);
+        var questionView = new QuestionView(question, questionDetails);
         var questionController = new QuestionController(this.timeToAnswerQuestion, questionModel, questionView);
 
         questionController.initialize();

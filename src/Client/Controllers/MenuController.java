@@ -77,14 +77,52 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
     }
 
     /**
+     ** Dispatches the lobby view transition task
+     **/
+    protected void dispatchBackgroundTask()
+    {
+        var worker = new Thread(() ->
+        {
+            var response = client.retrieveIntegerFromServer();
+
+            switch (response)
+            {
+                case MenuResponseFlags.OPERATION_DONE ->
+                        this.initializeLobbyView();
+
+                case MenuResponseFlags.LOBBY_NOT_FOUND ->
+                        this.view.ui.lobbyNameEntry.setText("Invalid lobby");
+
+                case MenuResponseFlags.LOBBY_ALREADY_FULL ->
+                        this.view.ui.lobbyNameEntry.setText("Lobby is full");
+
+                case MenuResponseFlags.LOBBY_ALREADY_CONTAINS_USERNAME ->
+                        this.view.ui.playerNameEntry.setText("Set unique name");
+
+                case MenuResponseFlags.LOBBY_WITH_SUCH_NAME_ALREADY_EXISTS ->
+                        this.view.ui.lobbyNameEntry.setText("Such lobby already exists..");
+
+                case MenuResponseFlags.LOBBY_COULD_NOT_BE_CREATED ->
+                {
+                    this.view.ui.playerNameEntry.setText("Serverside error");
+                    this.view.ui.lobbyNameEntry.setText("Serverside error");
+                }
+            }
+        });
+
+        worker.start();
+    }
+
+    /**
      ** Initializes the lobby view
      **/
-    private void initializeLobbyView(boolean isGuest)
+    private void initializeLobbyView()
     {
         this.dispose();
 
-        var playerNames = client.retrievePlayerNamesResponse();
+        var isGuest = this.model.getIsGuest();
         var lobbyName = this.model.getLobbyName();
+        var playerNames = client.retrieveStringArrayFromServer();
 
         var lobbyModel = new LobbyModel();
         var lobbyView = new LobbyView(lobbyName, playerNames, isGuest);
@@ -124,24 +162,9 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
             return;
         }
 
-        var response = client.retrieveLobbyInitResponse("JOIN", playerName, lobbyName);
+        this.model.setIsGuest(true);
 
-        if (response == MenuResponseFlags.LOBBY_NOT_FOUND)
-        {
-            this.view.ui.lobbyNameEntry.setText("Invalid lobby");
-        }
-        else if (response == MenuResponseFlags.LOBBY_ALREADY_FULL)
-        {
-            this.view.ui.lobbyNameEntry.setText("Lobby is full");
-        }
-        else if (response == MenuResponseFlags.LOBBY_ALREADY_CONTAINS_USERNAME)
-        {
-            this.view.ui.playerNameEntry.setText("Set unique name");
-        }
-        else if (response == MenuResponseFlags.OPERATION_DONE)
-        {
-            this.initializeLobbyView(true);
-        }
+        client.sendLobbyInitRequest("JOIN", playerName, lobbyName);
     };
 
     /**
@@ -166,21 +189,9 @@ public final class MenuController extends DataOrientedController<MenuModel, Menu
             return;
         }
 
-        var response = client.retrieveLobbyInitResponse("CREATE", playerName, lobbyName);
+        this.model.setIsGuest(false);
 
-        if (response == MenuResponseFlags.LOBBY_COULD_NOT_BE_CREATED)
-        {
-            this.view.ui.playerNameEntry.setText("Serverside error");
-            this.view.ui.lobbyNameEntry.setText("Serverside error");
-        }
-        else if (response == MenuResponseFlags.LOBBY_WITH_SUCH_NAME_ALREADY_EXISTS)
-        {
-            this.view.ui.lobbyNameEntry.setText("Such lobby already exists..");
-        }
-        else if (response == MenuResponseFlags.OPERATION_DONE)
-        {
-            this.initializeLobbyView(false);
-        }
+        client.sendLobbyInitRequest("CREATE", playerName, lobbyName);
     };
 
     /**

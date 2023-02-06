@@ -1,7 +1,9 @@
 package Client.Controllers;
 
 import Client.Abstractions.Controllers.TimeOrientedController;
+import Client.Models.LeaderboardModel;
 import Client.Models.QuestionModel;
+import Client.Views.Leaderboard.LeaderboardView;
 import Client.Views.Question.QuestionView;
 
 import java.awt.event.ActionListener;
@@ -63,7 +65,16 @@ public final class QuestionController extends TimeOrientedController<QuestionMod
      **/
     private void initializeLeaderboardView()
     {
-        System.out.println("Moving to leaderboard!");
+        var playerScoresDetails = client.getPlayerScoresDetails();
+
+        var playerNames = playerScoresDetails.get(0);
+        var playerScores = playerScoresDetails.get(1);
+
+        var leaderboardModel = new LeaderboardModel();
+        var leaderboardView = new LeaderboardView(playerNames, playerScores);
+        var leaderboardController = new LeaderboardController(5, leaderboardModel, leaderboardView);
+
+        leaderboardController.initialize();
     }
 
     /**

@@ -66,7 +66,7 @@ public abstract class Controller<TModel, TView extends View>
     /**
      ** Disposes the view
      **/
-    protected void dispose()
+    public void dispose()
     {
         this.view.dispose();
 

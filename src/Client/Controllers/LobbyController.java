@@ -81,24 +81,36 @@ public final class LobbyController extends DataOrientedController<LobbyModel, Lo
     }
 
     /**
-     ** Continuously updates the player name list and initializes the category view if necessary
+     ** Dispatches the category view transition task
      **/
     @Override
     protected void dispatchBackgroundTask()
     {
         var worker = new Thread(() ->
         {
-            var timeToAnswerString = client.retrievePlayerNameUntilStartGameResponseIsGiven(view.playerNamesList);
-            var timeToAnswer = Integer.parseInt(timeToAnswerString);
-            var categories = client.retrieveCategoriesResponse();
+            while (true)
+            {
+                var message = client.retrieveStringFromServer();
 
-            dispose();
+                if (message.contains("NEW"))
+                {
+                    var playerName = message.split(" ")[1];
+                    view.playerNamesList.addElement(playerName);
+                    continue;
+                }
 
-            var categoryModel = new CategoryModel();
-            var categoryView = new CategoryView(categories);
-            var categoryController = new CategoryController(timeToAnswer, categoryModel, categoryView);
+                var timeToAnswer = Integer.parseInt(message);
+                var categories = client.retrieveStringArrayFromServer();
 
-            categoryController.initialize();
+                dispose();
+
+                var categoryModel = new CategoryModel();
+                var categoryView = new CategoryView(categories);
+                var categoryController = new CategoryController(timeToAnswer, categoryModel, categoryView);
+
+                categoryController.initialize();
+                break;
+            }
         });
 
         worker.start();
@@ -111,7 +123,7 @@ public final class LobbyController extends DataOrientedController<LobbyModel, Lo
     {
         this.dispose();
 
-        client.retrieveTimeToAnswerInSeconds(
+        client.sendTimeToAnswerInSecondsRequest(
             this.model.getRounds(),
             this.model.getCategoriesPerRound(),
             this.model.getQuestionsPerCategory(),

@@ -2,7 +2,6 @@ package Client.Communication;
 
 import org.json.JSONObject;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,7 +9,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 /**
  ** Represents the client socket which is responsible for communication
@@ -21,7 +20,7 @@ public final class Client
     /**
      ** The character stream reader
      **/
-    private final BufferedReader in;
+    public final BufferedReader in;
 
     /**
      ** The data output stream
@@ -53,111 +52,74 @@ public final class Client
     }
 
     /**
-     ** Retrieves the menu response flag from the server
-     ** @return The menu response flag
+     **
      **/
-    public int retrieveLobbyInitResponse(String method, String playerName, String lobbyName)
+    public String retrieveStringFromServer()
     {
-        var message = String.join(" ", method, playerName, lobbyName, "\n");
+        var response = "";
 
         try
         {
-            this.out.writeBytes(message);
-
-            this.out.flush();
-
-            var response = this.in.readLine();
+            response = this.in.readLine();
 
             while (response == null)
             {
                 response = this.in.readLine();
             }
-
-            return Integer.parseInt(response);
         }
         catch (IOException e)
         {
             throw new RuntimeException(e);
         }
+
+        return response;
     }
 
     /**
-     ** Retrieves the list of strings from the server
-     ** @return The list of strings
+     ** Retrieves the integer output from the server
      **/
-    private List<String> retrieveStringArray()
+    public int retrieveIntegerFromServer()
+    {
+        var response = this.retrieveStringFromServer();
+
+        return Integer.parseInt(response);
+    }
+
+    /**
+     ** Retrieves the integer output from the server
+     **/
+    public List<String> retrieveStringArrayFromServer()
     {
         var data = new ArrayList<String>();
 
-        try
+        var response = retrieveStringFromServer();
+
+        var json = new JSONObject(response);
+
+        var iterator = json.keys();
+
+        while (iterator.hasNext())
         {
-            var response = this.in.readLine();
+            var id = iterator.next();
 
-            while (response == null)
-            {
-                response = this.in.readLine();
-            }
+            var string = json.getString(id);
 
-            var json = new JSONObject(response);
-
-            var iterator = json.keys();
-
-            while (iterator.hasNext())
-            {
-                var id = iterator.next();
-
-                var string = json.getString(id);
-
-                data.add(string);
-            }
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
+            data.add(string);
         }
 
         return data;
     }
 
     /**
-     ** Retrieves the names of the players in the lobby
-     ** @return The list of player names
+     ** Sends message to the server
+     ** @param message The message to be sent
      **/
-    public List<String> retrievePlayerNamesResponse()
+    public void sendRequestToServer(String message)
     {
-        return retrieveStringArray();
-    }
-
-    /**
-     ** Retrieves the new coming players names continuously until the game starts
-     ** @param list The self-change aware list model
-     ** @return The new coming player name or time to answer
-     **/
-    public String retrievePlayerNameUntilStartGameResponseIsGiven(DefaultListModel<String> list)
-    {
-        var digitOnlyPattern = Pattern.compile("\\d+");
-
         try
         {
-            var response = this.in.readLine();
-
-            while (response == null || !digitOnlyPattern.matcher(response).matches())
-            {
-                response = this.in.readLine();
-
-                System.out.println(response);
-
-                if (response.contains("NEW"))
-                {
-                    var playerName = response.split(" ")[1];
-
-                    System.out.println(playerName);
-
-                    list.addElement(playerName);
-                }
-            }
-
-            return response;
+            this.out.writeBytes(message);
+            this.out.flush();
         }
         catch (IOException e)
         {
@@ -166,14 +128,26 @@ public final class Client
     }
 
     /**
-     ** Retrieves the time to answer the question specified in seconds
+     ** Sends the request to get the menu response flags
+     ** @param method The lobby handle method
+     ** @param playerName The name of the player
+     ** @param lobbyName The name of the lobby
+     **/
+    public void sendLobbyInitRequest(String method, String playerName, String lobbyName)
+    {
+        var message = String.join(" ", method, playerName, lobbyName, "\n");
+
+        sendRequestToServer(message);
+    }
+
+    /**
+     ** Sends the request to get the time to answer for all the instances
      ** @param rounds The amount of rounds in the game
      ** @param categories The amount of categories per round
      ** @param questions The amount of questions per questions
      ** @param time The amount of time to answer
-     ** @return The time to answer in seconds
      **/
-    public int retrieveTimeToAnswerInSeconds(int rounds, int categories, int questions, int time)
+    public void sendTimeToAnswerInSecondsRequest(int rounds, int categories, int questions, int time)
     {
         var json = new JSONObject();
 
@@ -182,35 +156,57 @@ public final class Client
         json.put("questions_per_category", questions);
         json.put("time_for_answer", time);
 
-        var formattedJsonString = json.toString();
+        var formattedJsonString = json.toString() + '\n';
 
-        try
-        {
-            this.out.writeBytes(formattedJsonString + "\n");
-
-            this.out.flush();
-
-            var response = this.in.readLine();
-
-            while (response == null)
-            {
-                response = this.in.readLine();
-            }
-
-            return Integer.parseInt(response);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        sendRequestToServer(formattedJsonString);
     }
 
-    /**
-     ** Retrieves the set of categories for next round
-     ** @return The set of category names
-     **/
-    public List<String> retrieveCategoriesResponse()
+    public List<String> getQuestionDetails()
     {
-        return retrieveStringArray();
+        var response = retrieveStringFromServer();
+
+        var json = new JSONObject(response);
+
+        var data = new ArrayList<String>();
+
+        var question = json.getString("question");
+
+        var answersIterator = json.getJSONArray("answers").iterator();
+
+        data.add(question);
+
+        while (answersIterator.hasNext())
+        {
+            var answer = (String) answersIterator.next();
+
+            data.add(answer);
+        }
+
+        return data;
+    }
+
+    public ArrayList<ArrayList<String>> getPlayerScoresDetails()
+    {
+        var response = retrieveStringFromServer();
+        var json = new JSONObject(response);
+        var playerNamesIterator = json.keys();
+
+        var data = new ArrayList<ArrayList<String>>();
+        var playerNames = new ArrayList<String>();
+        var playerScores = new ArrayList<String>();
+
+        while (playerNamesIterator.hasNext())
+        {
+            var playerName = playerNamesIterator.next();
+            var playerScore = "" + json.getInt(playerName);
+
+            playerNames.add(playerName);
+            playerScores.add(playerScore);
+        }
+
+        data.add(playerNames);
+        data.add(playerScores);
+
+        return data;
     }
 }
